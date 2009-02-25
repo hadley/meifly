@@ -1,7 +1,7 @@
 Package: meifly
 Type: Package
 Title: Interactive model exploration using GGobi
-Version: 0.1.1
+Version: 0.1.2
 Date: 2008-02-25
 Depends: reshape(>= 0.8.1), leaps, MASS
 Suggests: rggobi
