@@ -1,10 +1,10 @@
 \name{lmboot}
 \alias{lmboot}
-\title{Generate linear models by bootstrapping observations}
+\title{Bootstrap linear models}
 \author{Hadley Wickham <h.wickham@gmail.com>}
 
 \description{
-
+Generate linear models by bootstrapping observations
 }
 \usage{lmboot(formula, data, n=100)}
 \arguments{

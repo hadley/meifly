@@ -1,10 +1,10 @@
 \name{residuals.ensemble}
 \alias{residuals.ensemble}
-\title{Calculate residuals for all models in ensemble}
+\title{Residuals for model ensemble}
 \author{Hadley Wickham <h.wickham@gmail.com>}
 
 \description{
-
+Calculate residuals for all models in ensemble
 }
 \usage{residuals.ensemble(object, ...)}
 \arguments{

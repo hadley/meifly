@@ -32,10 +32,11 @@ coef.ensemble <- function(object, ...) {
 		mapply(coef_simple, object, names(object), SIMPLIFY=FALSE)
 	)
 
-	coefs <- add.all.combinations(coefs, vars=list("model","variable"), fill=0)
-	coefs <- transform(coefs,
-		varp = factor(ifelse(raw == 0, "", as.character(variable)))
-	)
+	coefs <- add.all.combinations(coefs, vars=list("model","variable"))
+  # coefs <- transform(coefs,
+  #   varp = factor(ifelse(raw == 0, "", as.character(variable)))
+  # )
+  coefs[is.na(coefs)] <- 0
 	rownames(coefs) <-  paste("m", coefs$model, "v", as.numeric(coefs$variable), sep="")
 
 	class(coefs) <- c("variable_ensemble", class(coefs))
@@ -43,6 +44,7 @@ coef.ensemble <- function(object, ...) {
 	coefs
 }
 
+# Coef simple
 # Simple coefficient extractor for single model
 #
 # @keyword internal
@@ -91,6 +93,7 @@ stdcoef <- function(model) {
 	coef(update(model, . ~ ., data=rescaler(model$model)))
 }
 
+# Residuals for model ensemble
 # Calculate residuals for all models in ensemble
 # 
 # @arguments ensemble of models
@@ -111,11 +114,12 @@ residuals.ensemble <- function(object, ...) {
 	resids$model <- factor(resids$model)
 	rownames(resids) <- 1:nrow(resids)
 	
-	resids$obs <- reorder_factor(resids$obs, tapply(resids$resid, resids$obs, mean))
+	resids$obs <- reorder(resids$obs, resids$resid)
 	class(resids) <- c("resid_ensemble", class(resids))
 	resids
 }
 
+# Residual summary for model ensemble
 # Summarise residuals from ensemble
 # 
 # @arguments model residuals from \code{\link{residuals.ensemble}}

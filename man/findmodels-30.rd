@@ -1,10 +1,10 @@
 \name{findmodels}
 \alias{findmodels}
-\title{General ensemble of models from models in global workspace}
+\title{Find models in workspace}
 \author{Hadley Wickham <h.wickham@gmail.com>}
 
 \description{
-
+General ensemble of models from models in global workspace
 }
 \usage{findmodels(modeltype = "lm", dataset, pattern)}
 \arguments{

@@ -46,6 +46,7 @@ fitbest <- function(formula, data, nbest=10, ...) {
 	models
 }
 
+# Find models in workspace
 # General ensemble of models from models in global workspace
 # 
 # @arguments model type
@@ -65,6 +66,7 @@ findmodels <- function(modeltype = "lm", dataset, pattern) {
 	models
 }
 
+# Bootstrap linear models
 # Generate linear models by bootstrapping observations
 # 
 # @arguments model formula

@@ -1,4 +1,4 @@
 meifly 0.1.1 ----------------------
 
- * made rggobi only suggested, to make it easier to use without rggobi installed
+ * suggest rggobi instead of requiring it, to make it easier to use without rggobi installed
  * remove dependency on ggplot
