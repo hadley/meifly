@@ -27,18 +27,14 @@ summary.ensemble <- function(object, ...) {
 # 
 # @arguments ensemble of models
 # @keyword regression
-coef.ensemble <- function(object, ...) {
-  coefs <- do.call(rbind, 
-    mapply(coef_simple, object, names(object), SIMPLIFY=FALSE)
-  )
+coef.ensemble <- function(object, ...) {  
+  coefs <- ldply(object, coef_simple, data = attr(object, "data"))
+  names(coefs)[1] <- "model"
+  coefs$model <- as.numeric(coefs$model)
 
-  coefs <- add.all.combinations(coefs, vars=list("model","variable"))
-  # coefs <- transform(coefs,
-  #   varp = factor(ifelse(raw == 0, "", as.character(variable)))
-  # )
+  coefs <- add.all.combinations(coefs, vars = list("model","variable"))
   coefs[is.na(coefs)] <- 0
-  rownames(coefs) <-  paste("m", coefs$model, "v", as.numeric(coefs$variable), sep="")
-
+  rownames(coefs) <- str_c("m", coefs$model, "v", as.numeric(coefs$variable))
   class(coefs) <- c("variable_ensemble", class(coefs))
   
   coefs
@@ -48,7 +44,7 @@ coef.ensemble <- function(object, ...) {
 # Simple coefficient extractor for single model
 #
 # @keyword internal
-coef_simple <- function(model, name="") {
+coef_simple <- function(model, data) {
   trunc <- function(x, trunc) ifelse(abs(x) > trunc, sign(x) * trunc, x)
 
   coefs <- data.frame(
@@ -57,11 +53,9 @@ coef_simple <- function(model, name="") {
   )
   names(coefs) <- c("variable", "raw", "t")
   transform(coefs,
-    raw = raw, 
     t = trunc(t,3),
     abst = abs(trunc(t, 3)),
-    std = stdcoef(model)[-1], 
-    model = name
+    std = stdcoef(model, data)[-1]
   )
 }
 
@@ -89,8 +83,8 @@ summary.variable_ensemble <- function(object, ...) {
 # 
 # @arguments model to refit with standardised data
 # @keyword internal
-stdcoef <- function(model) {
-  coef(update(model, . ~ ., data=rescaler(model$model)))
+stdcoef <- function(model, data = model$model) {
+  coef(update(model, . ~ ., data=rescaler(data)))
 }
 
 # Residuals for model ensemble

@@ -21,14 +21,15 @@ fitall <- function(y, x, method = "lm", ...) {
 
   method <- as.name(method)
   fitmodel <- function(f) {
-     eval(substitute(method(f, data = data, ...), 
+     eval(substitute(method(f, data = data, model = FALSE, ...), 
        list(f = f, method = method)))
   }
   
   models <- llply(form, fitmodel, .progress = "text")
   names(models) <- seq_along(models)
   class(models) <- c("ensemble", class(models))
-  models
+  
+  new_ensemble(models, data)
 }
 
 # Generate best linear models
