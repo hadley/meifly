@@ -8,20 +8,21 @@
 # @arguments matrix of x values
 # @arguments method used to fit the model, eg \code{\link{lm}},\code{\link[MASS]{rlm}}
 # @keyword regression
-fitall <- function(y, x, method=lm, ...) {
+fitall <- function(y, x, method = "lm", ...) {
   data <- cbind(y=y, x)
 
   combs <- do.call(expand.grid, rep(list(c(FALSE, TRUE)), ncol(x)))[-1, ]
 
   vars <- apply(combs, 1, function(i) names(x)[i])
   form <- paste("y ~ ", lapply(vars, paste, collapse=" + "), sep = "")
-  form <- lapply(form, as.formula)
+  form <- lapply(form, as.formula, env = baseenv())
   
   message("Fitting ", length(form), " models...")
 
+  method <- as.name(method)
   fitmodel <- function(f) {
-    eval(substitute(method(f, data = data, ...), 
-      list(f = f, data = data, method = method)))
+     eval(substitute(method(f, data = data, ...), 
+       list(f = f, method = method)))
   }
   
   models <- llply(form, fitmodel, .progress = "text")
