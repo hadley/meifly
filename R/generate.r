@@ -16,9 +16,16 @@ fitall <- function(y, x, method=lm, ...) {
   vars <- apply(combs, 1, function(i) names(x)[i])
   form <- paste("y ~ ", lapply(vars, paste, collapse=" + "), sep = "")
   form <- lapply(form, as.formula)
+  
+  message("Fitting ", length(form), " models...")
 
-  models <- lapply(form, function(f) eval(substitute(method(f, data=data, ...), list(f=f, data=data, method=method))))
-  names(models) <- 1:length(models)
+  fitmodel <- function(f) {
+    eval(substitute(method(f, data = data, ...), 
+      list(f = f, data = data, method = method)))
+  }
+  
+  models <- llply(form, fitmodel, .progress = "text")
+  names(models) <- seq_along(models)
   class(models) <- c("ensemble", class(models))
   models
 }
