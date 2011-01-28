@@ -1,10 +1,13 @@
 .df <- function(x) attr(logLik(x), "df")
 
-# Summarise ensemble of models with model fit statistics
-# Returns degrees of freedom, log likelihood, R-squared, AIC, BIC and adjusted R-squared.
-#
-# @arguments ensemble of models
-# @keyword regression
+#' Returns degrees of freedom, log likelihood, R-squared, AIC, BIC and 
+#' adjusted R-squared.
+#'
+#' @param object ensemble of models
+#' @param ... other arguments ignored
+#' @keywords regression
+#' @method summary ensemble
+#' @S3method summary ensemble
 summary.ensemble <- function(object, ...) {
   fits <- data.frame(t(sapply(object, function(mod) {
     sum <- summary(mod)
@@ -23,28 +26,31 @@ summary.ensemble <- function(object, ...) {
   fits
 }
 
-# Calculcate coefficients for all models in ensemble
-# Returns raw, t-value, absolute t-value, and standardised coefficent values.
-# 
-# @arguments ensemble of models
-# @keyword regression
+#' Calculcate coefficients for all models in ensemble.
+#' Returns raw, t-value, absolute t-value, and standardised coefficent values.
+#' 
+#' @param object ensemble of models
+#' @param ... other arguments ignored
+#' @keywords regression
+#' @method coef ensemble
+#' @S3method coef ensemble
 coef.ensemble <- function(object, ...) {  
   coefs <- ldply(object, coef_simple, data = attr(object, "data"))
   names(coefs)[1] <- "model"
   coefs$model <- factor(coefs$model)
-
-  coefs <- add.all.combinations(coefs, vars = list("model","variable"))
+  
+  all <- expand.grid(
+      model = unique(coefs$model),
+      variable = unique(coefs$variable))
+  coefs <- join(all, coefs, by = c("model", "variable"))
   coefs[is.na(coefs)] <- 0
-  rownames(coefs) <- str_c("m", coefs$model, "v", as.numeric(coefs$variable))
+  rownames(coefs) <- paste("m", coefs$model, "v", as.numeric(coefs$variable),
+    sep = "")
   class(coefs) <- c("variable_ensemble", class(coefs))
   
   coefs
 }
 
-# Coef simple
-# Simple coefficient extractor for single model
-#
-# @keyword internal
 coef_simple <- function(model, data) {
   trunc <- function(x, trunc) ifelse(abs(x) > trunc, sign(x) * trunc, x)
 
@@ -60,41 +66,43 @@ coef_simple <- function(model, data) {
   )
 }
 
-# Summarise variable ensemble
-# Summary function of coef(ensemble)
-# 
-# Provides variable level statistics.
-# 
-# @keyword regression
+#' Summarise variable ensemble.
+#' 
+#' Provides variable level statistics.
+#' 
+#' @param object ensemble of models
+#' @param ... other arguments ignored
+#' @keywords regression
+#' @method summary variable_ensemble
+#' @S3method summary variable_ensemble
 summary.variable_ensemble <- function(object, ...) {
-  coefs <- subset(rename(object, c(variable = "var")), raw != 0)
-  coefm <- melt(coefs, 
-    id=c("model","var"), 
-    measure=c("raw","t","abst","std")
-  )
-  
-  rename(cbind(
-    cast(coefm, var ~ variable, c(mean, sd)),
-    n = cast(coefm, var ~ variable, length)[,2]
-  ), c(var = "variable"))
+  coefs <- subset(object, raw != 0)
+
+  ddply(coefs, "variable", summarise,
+     raw_mean = mean(raw),
+     raw_sd = sd(raw),
+     t_mean = mean(raw),
+     t_sd = sd(t), 
+     std_mean = mean(std),
+     std_sd = sd(std),
+     n = length(model))
 }
 
 # Calculcate standardised coefficients for a model
-# Refits the model with data standardised to mean 0, standard deviation 1.
-# 
-# @arguments model to refit with standardised data
-# @keyword internal
 stdcoef <- function(model, data = model$model) {
-  coef(update(model, . ~ ., data=rescaler(data)))
+  data[] <- lapply(data, scale)
+  coef(update(model, . ~ ., data = data))
 }
 
-# Residuals for model ensemble
-# Calculate residuals for all models in ensemble
-# 
-# @arguments ensemble of models
-# @returns data.frame of class \code{resid_ensemble}
-# @seealso \code{\link{summary.resid_ensemble}}
-# @keyword regression
+#' Calculate residuals for all models in ensemble.
+#' 
+#' @return data.frame of class \code{resid_ensemble}
+#' @seealso \code{\link{summary.resid_ensemble}}
+#' @param object ensemble of models
+#' @param ... other arguments ignored
+#' @keywords regression
+#' @method residuals ensemble
+#' @S3method residuals ensemble
 residuals.ensemble <- function(object, ...) {
   resids <- do.call(rbind, mapply(function(mod, name) {
     data.frame(
@@ -116,11 +124,14 @@ residuals.ensemble <- function(object, ...) {
   resids
 }
 
-# Residual summary for model ensemble
-# Summarise residuals from ensemble
-# 
-# @arguments model residuals from \code{\link{residuals.ensemble}}
-# @keyword regression
+#' Summarise residuals from ensemble.
+#' 
+#' @param object model residuals from \code{\link{residuals.ensemble}}
+#' @param data associated data set
+#' @param ... other arguments ignored
+#' @keywords regression
+#' @method summary resid_ensemble
+#' @S3method summary resid_ensemble
 summary.resid_ensemble <- function(object, data = attr(object, "data"), ...) {
   s <- ddply(object, "obs", summarise,
     mean = mean(rstudent),

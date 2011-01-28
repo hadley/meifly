@@ -1,16 +1,17 @@
-# Explore a model ensemble with GGobi
-# Load model ensemble into GGobi with appropriate edge structure
-#
-# @keyword dynamic
-# @keyword regression
-#X y <- swiss$Fertility
-#X x <- swiss[, -1]
-#X mods <- fitall(y, x, lm)
-#X \dontrun{
-#X library(rggobi)
-#X ggobi(mods, swiss)
-#X }
-ggobi.ensemble <- function(data, original=NULL, ...) {
+#' Load model ensemble into GGobi with appropriate edge structure
+#'
+#' @keywords dynamic regression
+#' @param data model ensemble object
+#' @param ... other arguments ignored
+#' @examples
+#' y <- swiss$Fertility
+#' x <- swiss[, -1]
+#' mods <- fitall(y, x, "lm")
+#' \dontrun{
+#' library(rggobi)
+#' ggobi(mods, swiss)
+#' }
+ggobi.ensemble <- function(data, ...) {
   if (!require("rggobi", quiet=TRUE)) 
     stop("rggobi required to visualise ensemble in GGobi.")
   g <- ggobi()
@@ -24,7 +25,7 @@ ggobi.ensemble <- function(data, original=NULL, ...) {
   
   r <- resid(data)
   g["model-data"] <- r
-  g["data"] <- summary(r, original)
+  g["data"] <- summary(r)
   
   invisible(g)
 }

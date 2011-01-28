@@ -1,13 +1,19 @@
-# Generate all models 
-# Fit all combinations of x variables ($2^p$)
-# 
-# This technique generalises \code{\link{fitbest}}.  While it is much
-# slower it will work for any type of model.
-#
-# @arguments vector y values
-# @arguments matrix of x values
-# @arguments method used to fit the model, eg \code{\link{lm}},\code{\link[MASS]{rlm}}
-# @keyword regression
+#' Fit all combinations of x variables ($2^p$).
+#' 
+#' This technique generalises \code{\link{fitbest}}.  While it is much
+#' slower it will work for any type of model.
+#'
+#' @param y vector y values
+#' @param x matrix of x values
+#' @param method name of method used to fit the model, e.g
+#'    \code{\link{lm}},\code{\link[MASS]{rlm}}
+#' @param ... other arguments passed on to \code{method}
+#' @keywords regression
+#' @export
+#' @examples
+#' y <- swiss$Fertility
+#' x <- swiss[, -1]
+#' mods <- fitall(y, x, "lm")
 fitall <- function(y, x, method = "lm", ...) {
   data <- cbind(y=y, x)
 
@@ -27,19 +33,22 @@ fitall <- function(y, x, method = "lm", ...) {
   
   models <- llply(form, fitmodel, .progress = "text")
   names(models) <- seq_along(models)
-  class(models) <- c("ensemble", class(models))
   
   new_ensemble(models, data)
 }
 
-# Generate best linear models
-# Use the leaps package to generate the best subsets.
-# 
-# @arguments model formula
-# @arguments data frame
-# @arguments number of subsets of each size to record
-# @arguments other arguments passed to \code{\link[leaps]{regsubsets}}
-# @keyword regression
+#' Use the leaps package to generate the best subsets.
+#' 
+#' @param formula model formula
+#' @param data data frame
+#' @param nbest number of subsets of each size to record
+#' @param ... other arguments passed to \code{\link[leaps]{regsubsets}}
+#' @keywords regression
+#' @export
+#' @importFrom leaps regsubsets
+#' @examples
+#' y <- swiss$Fertility
+#' mods <- fitbest(Fertility ~ ., swiss)
 fitbest <- function(formula, data, nbest=10, ...) {
   b <- regsubsets(formula, data=data, nbest=nbest, ...)
   mat <- summary(b, matrix.logical = TRUE)$which
@@ -50,18 +59,17 @@ fitbest <- function(formula, data, nbest=10, ...) {
   form <- lapply(form, as.formula)
 
   models <- lapply(form, function(f) eval(substitute(lm(f, data=data), list(f=f, data=data))))
-  names(models) <- 1:length(models)
-  class(models) <- c("ensemble", class(models))
-  models
+  names(models) <- seq_along(models)
+  
+  new_ensemble(models, data)
 }
 
-# Find models in workspace
-# General ensemble of models from models in global workspace
-# 
-# @arguments model type
-# @arguments if specified, all models must use this dataset
-# @arguments pattern of model object names to match
-# @keyword regression
+#' General ensemble of models from models in global workspace'
+#' 
+#' @param modeltype model class
+#' @param dataset if specified, all models must use this dataset
+#' @param pattern pattern of model object names to match
+#' @keywords regression
 findmodels <- function(modeltype = "lm", dataset, pattern) {
   ls <- ls(".GlobalEnv", pattern=pattern)
   mods <- ls[sapply(ls, function(x) inherits(get(x), modeltype))]
@@ -75,18 +83,19 @@ findmodels <- function(modeltype = "lm", dataset, pattern) {
   models
 }
 
-# Bootstrap linear models
-# Generate linear models by bootstrapping observations
-# 
-# @arguments model formula
-# @arguments data set
-# @argument number of bootstrapped data sets to generate
-# @keyword regression
+#' Generate linear models by bootstrapping observations
+#' 
+#' @param formula model formula
+#' @param data data set
+#' @param n number of bootstrapped data sets to generate
+#' @keywords regression
+#' @export
 lmboot <- function(formula, data, n=100) {
-  # fix to add model
-  models <- replicate(n, lm(formula, data=data[sample(nrow(data), replace=TRUE), ]), simplify=FALSE)
-  names(models) <- 1:length(models)
-  class(models) <- c("ensemble", class(models))
-  models
+  models <- replicate(n, 
+    lm(formula, data = data[sample(nrow(data), replace=TRUE), ]), 
+    simplify = FALSE)
+  names(models) <- seq_along(models)
+  
+  new_ensemble(models, data)
 }
 
