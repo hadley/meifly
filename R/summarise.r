@@ -14,7 +14,8 @@ summary.ensemble <- function(object, ...) {
       AIC = -AIC(mod),
       BIC = -AIC(mod, k=log(length(fitted(mod)))),
       R2 = sum$r.squared,
-      adjR2 = sum$adj.r.squared
+      adjR2 = sum$adj.r.squared,
+      n = length(mod$residuals)
     )
   })))
   fits$model <- factor(names(object))
@@ -30,7 +31,7 @@ summary.ensemble <- function(object, ...) {
 coef.ensemble <- function(object, ...) {  
   coefs <- ldply(object, coef_simple, data = attr(object, "data"))
   names(coefs)[1] <- "model"
-  coefs$model <- as.numeric(coefs$model)
+  coefs$model <- factor(coefs$model)
 
   coefs <- add.all.combinations(coefs, vars = list("model","variable"))
   coefs[is.na(coefs)] <- 0
@@ -108,8 +109,10 @@ residuals.ensemble <- function(object, ...) {
   resids$model <- factor(resids$model)
   rownames(resids) <- 1:nrow(resids)
   
-  resids$obs <- reorder(resids$obs, resids$resid)
+  scores <- tapply(resids$resid, resids$obs, mean)
+  resids$obs <- factor(resids$obs, level = names(scores)[order(scores)])
   class(resids) <- c("resid_ensemble", class(resids))
+  attr(resids, "data") <- attr(object, "data")
   resids
 }
 
@@ -118,16 +121,12 @@ residuals.ensemble <- function(object, ...) {
 # 
 # @arguments model residuals from \code{\link{residuals.ensemble}}
 # @keyword regression
-summary.resid_ensemble <- function(object, data=NULL, ...) {
-  s <- data.frame(
-    mean = c(tapply(abs(object$rstudent), object$obs, mean)),
-    sd = c(tapply(abs(object$rstudent), object$obs, sd)),
-    n = c(tapply(object$resid, object$obs, length))
-  )
-  obs <- factor(unique(object$obs))
-  s <- s[obs, ]
-  s$obs <- obs
-
+summary.resid_ensemble <- function(object, data = attr(object, "data"), ...) {
+  s <- ddply(object, "obs", summarise,
+    mean = mean(rstudent),
+    sd = sd(rstudent), 
+    n = length(rstudent))
+  
   if (!is.null(data)) s <- cbind(s, data)
   s
 }
