@@ -138,6 +138,10 @@ summary.resid_ensemble <- function(object, data = attr(object, "data"), ...) {
     sd = sd(rstudent), 
     n = length(rstudent))
   
-  if (!is.null(data)) s <- cbind(s, data)
+  if (!is.null(data)) {
+    data$obs <- rownames(data)
+    rownames(data) <- NULL
+    s <- join(s, data, by = "obs")
+  }
   s
 }

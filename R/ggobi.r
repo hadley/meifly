@@ -18,14 +18,14 @@ ggobi.ensemble <- function(data, ...) {
   g["model"] <- summary(data)
   
   c <- coef(data)
-  g["model-variable"] <- c
-  glyph_type(g["model-variable"]) <- ifelse(c$raw == 0, 1, 6)
+  g["model-estimate"] <- c
+  glyph_type(g["model-estimate"]) <- ifelse(c$raw == 0, 1, 6)
   g <- ggobi_longitudinal(c, id = model, g = g)
-  g["variable"] <- summary(c)
+  g["estimate"] <- summary(c)
   
   r <- resid(data)
-  g["model-data"] <- r
-  g["data"] <- summary(r)
+  g["model-observation"] <- r
+  g["observation"] <- summary(r)
   
   invisible(g)
 }
