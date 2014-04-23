@@ -1,3 +1,5 @@
-# meifly 0.2.99
+# meifly 0.3
 
 * Removed rggobi functionality.
+
+* Fixes for R CMD check
