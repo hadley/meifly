@@ -2,8 +2,12 @@ Package: meifly
 Type: Package
 Title: Interactive model exploration using GGobi
 Version: 0.2.99
-Imports: plyr, leaps, MASS,
-Suggests: rggobi
+Imports:
+    plyr,
+    leaps,
+    MASS,
+Suggests:
+    rggobi
 Author: Hadley Wickham <h.wickham@gmail.com>
 Maintainer: Hadley Wickham <h.wickham@gmail.com>
 Description: Exploratory model analysis.  Fit and graphical
@@ -11,5 +15,4 @@ Description: Exploratory model analysis.  Fit and graphical
 URL: http://had.co.nz/meifly
 License: GPL
 LazyData: true
-Collate: 'ensemble.r' 'generate.r' 'ggobi.r' 'meifly.r'
-    'summarise.r'
+Roxygen: list(wrap = FALSE)
