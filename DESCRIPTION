@@ -5,7 +5,7 @@ Description: Exploratory model analysis.  Fit and graphical
     explore ensembles of linear models.
 Author: Hadley Wickham <h.wickham@gmail.com>
 Maintainer: Hadley Wickham <h.wickham@gmail.com>
-Version: 0.3
+Version: 0.3.0.99
 URL: https://github.com/hadley/meifly
 BugReports: https://github.com/hadley/meifly/issues
 Imports:
