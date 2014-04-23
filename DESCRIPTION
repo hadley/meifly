@@ -1,7 +1,7 @@
 Package: meifly
 Type: Package
 Title: Interactive model exploration using GGobi
-Version: 0.2
+Version: 0.2.99
 Imports: plyr, leaps, MASS,
 Suggests: rggobi
 Author: Hadley Wickham <h.wickham@gmail.com>
