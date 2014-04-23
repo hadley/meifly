@@ -12,6 +12,6 @@ Imports:
     plyr,
     leaps,
     MASS,
-License: GPL
+License: MIT + file LICENSE
 LazyData: true
 Roxygen: list(wrap = FALSE)

@@ -3,3 +3,5 @@
 * Removed rggobi functionality.
 
 * Fixes for R CMD check
+
+* Change license to MIT
