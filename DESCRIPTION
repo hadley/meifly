@@ -6,7 +6,8 @@ Description: Exploratory model analysis.  Fit and graphical
 Author: Hadley Wickham <h.wickham@gmail.com>
 Maintainer: Hadley Wickham <h.wickham@gmail.com>
 Version: 0.2.99
-URL: http://had.co.nz/meifly
+URL: https://github.com/hadley/meifly
+BugReports: https://github.com/hadley/meifly/issues
 Imports:
     plyr,
     leaps,
