@@ -84,6 +84,7 @@ summary.variable_ensemble <- function(object, ...) {
      std_sd = sd(std),
      n = length(model))
 }
+globalVariables(c("std", "model"))
 
 # Calculcate standardised coefficients for a model
 stdcoef <- function(model, data = model$model) {
@@ -114,7 +115,7 @@ residuals.ensemble <- function(object, ...) {
   rownames(resids) <- 1:nrow(resids)
 
   scores <- tapply(resids$resid, resids$obs, mean)
-  resids$obs <- factor(resids$obs, level = names(scores)[order(scores)])
+  resids$obs <- factor(resids$obs, levels = names(scores)[order(scores)])
   class(resids) <- c("resid_ensemble", class(resids))
   attr(resids, "data") <- attr(object, "data")
   resids
