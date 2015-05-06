@@ -92,15 +92,16 @@ residuals.ensemble <- function(object, ...) {
 #' @keywords regression
 #' @export
 summary.resid_ensemble <- function(object, data = attr(object, "data"), ...) {
-  s <- ddply(object, "obs", summarise,
-    mean = mean(rstudent),
-    sd = sd(rstudent),
-    n = length(rstudent))
+  s <- plyr::ddply(object, ".rownames", summarise,
+    mean = mean(.std.resid),
+    sd = sd(.std.resid),
+    n = length(.std.resid))
 
   if (!is.null(data)) {
-    data$obs <- rownames(data)
+    data$.rownames <- rownames(data)
     rownames(data) <- NULL
-    s <- join(s, data, by = "obs")
+    s <- plyr::join(s, data, by = ".rownames")
   }
   s
 }
+
