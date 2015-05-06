@@ -57,6 +57,8 @@ summary.variable_ensemble <- function(object, ...) {
      n = length(model))
 }
 
+globalVariables(c(".std.resid", "estimate", "statistic", "model"))
+
 # Calculcate standardised coefficients for a model
 stdcoef <- function(model, data = model$model) {
   data[] <- lapply(data, scale)
