@@ -2,7 +2,7 @@
 % Please edit documentation in R/summarise.r
 \name{coef.ensemble}
 \alias{coef.ensemble}
-\title{Calculcate coefficients for all models in ensemble.
+\title{Calculate coefficients for all models in ensemble.
 Returns raw, t-value, absolute t-value, and standardised coefficent values.}
 \usage{
 \method{coef}{ensemble}(object, ...)
@@ -13,7 +13,7 @@ Returns raw, t-value, absolute t-value, and standardised coefficent values.}
 \item{...}{other arguments ignored}
 }
 \description{
-Calculcate coefficients for all models in ensemble.
+Calculate coefficients for all models in ensemble.
 Returns raw, t-value, absolute t-value, and standardised coefficent values.
 }
 \keyword{regression}
