@@ -47,18 +47,15 @@ coef.ensemble <- function(object, ...) {
 #' @keywords regression
 #' @export
 summary.variable_ensemble <- function(object, ...) {
-  coefs <- subset(object, raw != 0)
+  coefs <- subset(object, estimate != 0)
 
-  ddply(coefs, "variable", summarise,
-     raw_mean = mean(raw),
-     raw_sd = sd(raw),
-     t_mean = mean(raw),
-     t_sd = sd(t),
-     std_mean = mean(std),
-     std_sd = sd(std),
+  plyr::ddply(coefs, "term", summarise,
+     estimate_mean = mean(estimate),
+     estimate_sd = sd(estimate),
+     statistic_mean = mean(statistic),
+     statistic_sd = sd(statistic),
      n = length(model))
 }
-globalVariables(c("std", "model"))
 
 # Calculcate standardised coefficients for a model
 stdcoef <- function(model, data = model$model) {
