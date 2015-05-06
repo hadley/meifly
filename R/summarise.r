@@ -8,9 +8,7 @@
 #' @keywords regression
 #' @export
 summary.ensemble <- function(object, ...) {
-  fits <- data.frame(t(sapply(object, broom::glance)))
-  fits$model <- factor(names(object))
-  rownames(fits) <- paste("m", fits$model, sep="")
+  fits <- plyr::ldply(object, broom::glance)
   fits
 }
 
@@ -23,18 +21,15 @@ summary.ensemble <- function(object, ...) {
 #' @export
 coef.ensemble <- function(object, ...) {
   coefs <- plyr::ldply(object, broom::tidy, data = attr(object, "data"))
-  names(coefs)[1] <- "model"
-  coefs$model <- factor(coefs$model)
 
   all <- expand.grid(
-      model = unique(coefs$model),
+      .id = unique(coefs$.id),
       term = unique(coefs$term))
-  coefs <- join(all, coefs, by = c("model", "term"))
-  coefs[is.na(coefs)] <- 0
-  rownames(coefs) <- paste("m", coefs$model, "v", as.numeric(coefs$term),
-    sep = "")
-  class(coefs) <- c("variable_ensemble", class(coefs))
 
+  coefs <- plyr::join(all, coefs, by = c(".id", "term"))
+  coefs[is.na(coefs)] <- 0
+
+  class(coefs) <- c("variable_ensemble", class(coefs))
   coefs
 }
 
@@ -54,7 +49,7 @@ summary.variable_ensemble <- function(object, ...) {
      estimate_sd = sd(estimate),
      statistic_mean = mean(statistic),
      statistic_sd = sd(statistic),
-     n = length(model))
+     n = length(.id))
 }
 
 globalVariables(c(".std.resid", "estimate", "statistic", "model"))
@@ -76,10 +71,6 @@ stdcoef <- function(model, data = model$model) {
 residuals.ensemble <- function(object, ...) {
   data <- attr(object, "data")
   resids <- plyr::ldply(object, broom::augment, data = data)
-
-  names(resids)[1] <- "model"
-  resids$model <- factor(resids$model)
-  rownames(resids) <- 1:nrow(resids)
 
   class(resids) <- c("resid_ensemble", class(resids))
   attr(resids, "data") <- attr(object, "data")
