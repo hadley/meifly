@@ -14,7 +14,7 @@ summary.ensemble <- function(object, ...) {
   fits
 }
 
-#' Calculcate coefficients for all models in ensemble.
+#' Calculate coefficients for all models in ensemble.
 #' Returns raw, t-value, absolute t-value, and standardised coefficent values.
 #'
 #' @param object ensemble of models
