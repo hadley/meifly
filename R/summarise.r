@@ -72,21 +72,13 @@ stdcoef <- function(model, data = model$model) {
 #' @keywords regression
 #' @export
 residuals.ensemble <- function(object, ...) {
-  resids <- do.call(rbind, mapply(function(mod, name) {
-    data.frame(
-      obs=gsub("\\.[0-9]+$", "", names(resid(mod))),
-      resid=resid(mod),
-      rstudent = rstudent(mod),
-      fitted=fitted(mod),
-      true=fitted(mod) + resid(mod),
-      influence.measures(mod)$infmat[, c("dffit", "cov.r", "cook.d", "hat")],
-      model=name)
-  }, object, names(object), SIMPLIFY=FALSE))
+  data <- attr(object, "data")
+  resids <- plyr::ldply(object, broom::augment, data = data)
+
+  names(resids)[1] <- "model"
   resids$model <- factor(resids$model)
   rownames(resids) <- 1:nrow(resids)
 
-  scores <- tapply(resids$resid, resids$obs, mean)
-  resids$obs <- factor(resids$obs, levels = names(scores)[order(scores)])
   class(resids) <- c("resid_ensemble", class(resids))
   attr(resids, "data") <- attr(object, "data")
   resids
