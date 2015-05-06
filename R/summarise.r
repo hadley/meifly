@@ -8,18 +8,7 @@
 #' @keywords regression
 #' @export
 summary.ensemble <- function(object, ...) {
-  fits <- data.frame(t(sapply(object, function(mod) {
-    sum <- summary(mod)
-    c(
-      df = .df(mod),
-      logL = logLik(mod),
-      AIC = -AIC(mod),
-      BIC = -AIC(mod, k=log(length(fitted(mod)))),
-      R2 = sum$r.squared,
-      adjR2 = sum$adj.r.squared,
-      n = length(mod$residuals)
-    )
-  })))
+  fits <- data.frame(t(sapply(object, broom::glance)))
   fits$model <- factor(names(object))
   rownames(fits) <- paste("m", fits$model, sep="")
   fits
