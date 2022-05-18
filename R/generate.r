@@ -1,5 +1,5 @@
 #' Fit all combinations of x variables ($2^p$).
-#' 
+#'
 #' This technique generalises \code{\link{fitbest}}.  While it is much
 #' slower it will work for any type of model.
 #'
@@ -21,24 +21,24 @@ fitall <- function(y, x, method = "lm", ...) {
 
   vars <- apply(combs, 1, function(i) names(x)[i])
   form <- paste("y ~ ", lapply(vars, paste, collapse=" + "), sep = "")
-  form <- lapply(form, as.formula, env = baseenv())
-  
+  form <- lapply(form, stats::as.formula, env = baseenv())
+
   message("Fitting ", length(form), " models...")
 
   method <- as.name(method)
   fitmodel <- function(f) {
-     eval(substitute(method(f, data = data, model = FALSE, ...), 
+     eval(substitute(method(f, data = data, model = FALSE, ...),
        list(f = f, method = method)))
   }
-  
+
   models <- llply(form, fitmodel, .progress = "text")
   names(models) <- seq_along(models)
-  
+
   new_ensemble(models, data)
 }
 
 #' Use the leaps package to generate the best subsets.
-#' 
+#'
 #' @param formula model formula
 #' @param data data frame
 #' @param nbest number of subsets of each size to record
@@ -56,16 +56,16 @@ fitbest <- function(formula, data, nbest=10, ...) {
   intercept <- c("", "-1")[as.numeric(mat[,1])]
   vars <- apply(mat[,-1], 1, function(x) colnames(mat[, -1])[x])
   form <- paste(formula[[2]], " ~ ", lapply(vars, paste, collapse=" + "), sep = "")
-  form <- lapply(form, as.formula)
+  form <- lapply(form, stats::as.formula)
 
   models <- lapply(form, function(f) eval(substitute(lm(f, data=data), list(f=f, data=data))))
   names(models) <- seq_along(models)
-  
+
   new_ensemble(models, data)
 }
 
 #' General ensemble of models from models in global workspace'
-#' 
+#'
 #' @param modeltype model class
 #' @param dataset if specified, all models must use this dataset
 #' @param pattern pattern of model object names to match
@@ -77,25 +77,25 @@ findmodels <- function(modeltype = "lm", dataset, pattern) {
     data.name <- function(x) as.character(x$call[["data"]])
     mods <- mods[sapply(mods, function(x) data.name == dataset)]
   }
-  
+
   models <- lapply(mods, get)
   class(models) <- c("ensemble", class(models))
   models
 }
 
 #' Generate linear models by bootstrapping observations
-#' 
+#'
 #' @param formula model formula
 #' @param data data set
 #' @param n number of bootstrapped data sets to generate
 #' @keywords regression
 #' @export
 lmboot <- function(formula, data, n=100) {
-  models <- replicate(n, 
-    lm(formula, data = data[sample(nrow(data), replace=TRUE), ]), 
+  models <- replicate(n,
+    stats::lm(formula, data = data[sample(nrow(data), replace=TRUE), ]),
     simplify = FALSE)
   names(models) <- seq_along(models)
-  
+
   new_ensemble(models, data)
 }
 

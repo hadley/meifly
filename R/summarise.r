@@ -1,4 +1,4 @@
-.df <- function(x) attr(logLik(x), "df")
+.df <- function(x) attr(stats::logLik(x), "df")
 
 #' Returns degrees of freedom, log likelihood, R-squared, AIC, BIC and
 #' adjusted R-squared.
@@ -12,9 +12,9 @@ summary.ensemble <- function(object, ...) {
     sum <- summary(mod)
     c(
       df = .df(mod),
-      logL = logLik(mod),
-      AIC = -AIC(mod),
-      BIC = -AIC(mod, k=log(length(fitted(mod)))),
+      logL = stats::logLik(mod),
+      AIC = -stats::AIC(mod),
+      BIC = -stats::AIC(mod, k=log(length(stats::fitted(mod)))),
       R2 = sum$r.squared,
       adjR2 = sum$adj.r.squared,
       n = length(mod$residuals)
@@ -53,7 +53,7 @@ coef_simple <- function(model, data) {
   trunc <- function(x, trunc) ifelse(abs(x) > trunc, sign(x) * trunc, x)
 
   coefs <- data.frame(
-    names(coef(model))[-1],
+    names(stats::coef(model))[-1],
     summary(model)$coefficients[-1, c(1, 3), drop=FALSE]
   )
   names(coefs) <- c("variable", "raw", "t")
@@ -77,11 +77,11 @@ summary.variable_ensemble <- function(object, ...) {
 
   ddply(coefs, "variable", summarise,
      raw_mean = mean(raw),
-     raw_sd = sd(raw),
+     raw_sd = stats::sd(raw),
      t_mean = mean(raw),
-     t_sd = sd(t),
+     t_sd = stats::sd(t),
      std_mean = mean(std),
-     std_sd = sd(std),
+     std_sd = stats::sd(std),
      n = length(model))
 }
 globalVariables(c("std", "model"))
@@ -89,7 +89,7 @@ globalVariables(c("std", "model"))
 # Calculcate standardised coefficients for a model
 stdcoef <- function(model, data = model$model) {
   data[] <- lapply(data, scale)
-  coef(update(model, . ~ ., data = data))
+  stats::coef(stats::update(model, . ~ ., data = data))
 }
 
 #' Calculate residuals for all models in ensemble.
@@ -103,12 +103,12 @@ stdcoef <- function(model, data = model$model) {
 residuals.ensemble <- function(object, ...) {
   resids <- do.call(rbind, mapply(function(mod, name) {
     data.frame(
-      obs=gsub("\\.[0-9]+$", "", names(resid(mod))),
-      resid=resid(mod),
-      rstudent = rstudent(mod),
-      fitted=fitted(mod),
-      true=fitted(mod) + resid(mod),
-      influence.measures(mod)$infmat[, c("dffit", "cov.r", "cook.d", "hat")],
+      obs=gsub("\\.[0-9]+$", "", names(stats::resid(mod))),
+      resid=stats::resid(mod),
+      rstudent = stats::rstudent(mod),
+      fitted=stats::fitted(mod),
+      true=stats::fitted(mod) + stats::resid(mod),
+      stats::influence.measures(mod)$infmat[, c("dffit", "cov.r", "cook.d", "hat")],
       model=name)
   }, object, names(object), SIMPLIFY=FALSE))
   resids$model <- factor(resids$model)
@@ -129,9 +129,10 @@ residuals.ensemble <- function(object, ...) {
 #' @keywords regression
 #' @export
 summary.resid_ensemble <- function(object, data = attr(object, "data"), ...) {
+  rstudent <- NULL # silence R CMD check note
   s <- ddply(object, "obs", summarise,
     mean = mean(rstudent),
-    sd = sd(rstudent),
+    sd = stats::sd(rstudent),
     n = length(rstudent))
 
   if (!is.null(data)) {
