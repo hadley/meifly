@@ -1,5 +1,6 @@
-# meifly 0.3.0.99
+# meifly 0.3.1
 
+* Fixes for R CMD check
 
 # meifly 0.3
 
