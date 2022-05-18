@@ -1,17 +1,18 @@
-Package: meifly
 Type: Package
+Package: meifly
 Title: Interactive model exploration using GGobi
-Description: Exploratory model analysis.  Fit and graphical
-    explore ensembles of linear models.
+Version: 0.3.0.99
 Author: Hadley Wickham <h.wickham@gmail.com>
 Maintainer: Hadley Wickham <h.wickham@gmail.com>
-Version: 0.3.0.99
+Description: Exploratory model analysis.  Fit and graphical explore
+    ensembles of linear models.
+License: MIT + file LICENSE
 URL: https://github.com/hadley/meifly
 BugReports: https://github.com/hadley/meifly/issues
 Imports:
-    plyr,
     leaps,
     MASS,
-License: MIT + file LICENSE
+    plyr
+Encoding: UTF-8
 LazyData: true
-Roxygen: list(wrap = FALSE)
+RoxygenNote: 7.2.0
