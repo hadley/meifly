@@ -1,7 +1,7 @@
 Type: Package
 Package: meifly
 Title: Interactive Model Exploration using 'GGobi'
-Version: 0.3.1
+Version: 0.3.1.9000
 Author: Hadley Wickham <h.wickham@gmail.com>
 Maintainer: Hadley Wickham <h.wickham@gmail.com>
 Description: Exploratory model analysis with <http://ggobi.org>.  
